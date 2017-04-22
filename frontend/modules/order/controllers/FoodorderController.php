@@ -12,7 +12,7 @@ use yii\filters\VerbFilter;
 use frontend\modules\order\components\{IpnListener,NexmoMessage};
 
 
-use frontend\modules\order\models\{FoodOrder,Menuitem,Foodorderitem,Customer,SavedVar};
+use frontend\modules\order\models\{FoodOrder, Menucat,Menuitem,Foodorderitem,Customer,SavedVar};
 
 /**
  * FoodorderController implements the CRUD actions for FoodOrder model.
@@ -59,9 +59,11 @@ class FoodorderController extends Controller
 		$isOpen = $savedVarM->get('isOpen');
 		
 		$models= MenuItem::find()->where(['status'=>1])->all();
+		$menuCatItems = Menucat::find()->orderBy('sortOrder')->all();
 		
-		
-		return $this->render('menu',['models'=>$models,'isOpen'=>$isOpen]);
+		return $this->render('menu',['models'=>$models,
+									 'isOpen'=>$isOpen,
+									 'menuCatItems'=>$menuCatItems]);
     }
 
     /**

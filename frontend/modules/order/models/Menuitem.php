@@ -73,5 +73,22 @@ class Menuitem extends \yii\db\ActiveRecord
 		else return $a;
 	}
 	
+	//create an array 
+	
+	public function createMenu() {
+		$models= MenuItem::find()->where(['status'=>1])->orderBy('name')->all();
+		
+		foreach ($models as $model) {
+			$row['itemID'] = $model->id;
+			$row['catID']  = $model->menuCatID;
+			$row['name']   = $model->name;
+			$row['des']	   = $model->des;
+			$row['price']  = $model->price;
+			$a[] = $row;
+		}
+		return json_encode($a);
+	}
+	
+	
 	
 }

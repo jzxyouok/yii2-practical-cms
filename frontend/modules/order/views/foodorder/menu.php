@@ -4,7 +4,7 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use yii\web\Session;
 
-use frontend\modules\order\models\FoodOrder;
+use frontend\modules\order\models\{FoodOrder, Menuitem};
 
 
 /* @var $this yii\web\View */
@@ -15,44 +15,50 @@ $this->params['breadcrumbs'][] = $this->title;
 
 $this->registerJsFile("https://unpkg.com/vue/dist/vue.js",['position'=>\yii\web\View::POS_HEAD]);
 
+$menuItems = Menuitem::createMenu();
+echo "<pre>";
+print_r($menuItems);
+echo "</pre>";
+
 ?>
 
-<style>
-ul li {
-	padding:10px;
-}
-
-</style>
 <div class="food-order-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
 
   <div id="app">
-
-
+		
+	
 	<ul>
-	<?php foreach ($models as $model) : ?>
-	
-	<li> <strong><?=$model->name?></strong> <br> <?=$model->des?> <br>
-	<button class='btn btn-primary' v-on:click='subItem(<?=$model->id?>,<?=$model->price?>)'>Remove Me</button>
-	<button class='btn btn-danger' v-on:click='addItem(<?=$model->id?>,"<?=$model->name?>",<?=$model->price?>)'>Add Me</button>
-	</li>
-	<?php endforeach;?>
-	
+		<li v-on:click="filterBy('')"> All </li>
+		
+		
+		<?php foreach ($menuCatItems as $menuCatItem) : ?>
+			<li v-on:click="filterBy(<?=$menuCatItem->id?>)"> <?=$menuCatItem->name?></li>
+		<?php endforeach;?>
 	</ul>
-	Items: {{items}}
-	<ul class="list-group">
-		<li class="list-group-item" v-for="item in items">
-		Itemname {{item.itemName}} , #{{item.itemID}} ,  Qty: {{item.qty}} 
+	
+	<h2> Items </h2>
+	
+	<ul>
+		<li v-for="menuItem in filteredMenuItems"> 
+		{{menuItem.name}}
 		</li>
 	</ul>
+
+	
 	<br>
+	<hr>
+	<br><br>
+	
+	
+	
+	
 	
 	<p> Delivery is free if in local and order > $30<p>
 	<p> $5 if in local. </p>
-	<p> For All other orders. Delivery is $15. </p>
-	<br> <br>
+	<p> For All other orders. Delivery is $15. 
 	
 	<p> <h2> The online ordering is currently <?=$isOpen?> </h2></p>
 	<p> <strong>Total:</strong> {{subTotal}}</p>
@@ -102,6 +108,8 @@ ul li {
 var vm = new Vue({
       el: '#app',
       data: {
+		catID : '',  
+		menuItems : <?= $menuItems?>,  
 		items: [],
 		subTotal: 0,
 		checked: 0,
@@ -147,12 +155,13 @@ var vm = new Vue({
 					}
 				
 			},
-
-		showme : function(){
-			alert (checked)
-			
-		}
-	  },
+		
+		filterBy: function(catID) {
+					this.catID = catID;
+		},
+	
+		
+	  },		//end Methods 
 	  
 	  computed: {
 		 getTotal: function() {
@@ -170,9 +179,22 @@ var vm = new Vue({
 	     getGrandTotal: function() {
 			this.grandTotal = this.subTotal + this.deliveryAmt;	
 			return this.grantTotal;
-		 }
+		 },
+
+		 filteredMenuItems: function() {
+			 var catID = this.catID;
+			 var itemArray = this.menuItems;
 			 
-	  }
+			 if(!catID) return itemArray;
+			 
+			 itemArray = itemArray.filter(function (item) {
+					if (item.catID == catID) return item;
+				})
+			 return itemArray;
+		 }
+		 
+		 
+	  } //end computed
 	  
 
     })
